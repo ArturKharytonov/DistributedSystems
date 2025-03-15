@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using TaskShare.API.Common;
 using TaskShare.API.Configuration;
 using TaskShare.Application.Extensions;
 using TaskShare.Infrastructure.Extensions;
@@ -52,6 +53,8 @@ app.UseSwaggerUI(options =>
         options.SwaggerEndpoint(url, name);
     }
 });
+
+app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
 app.UseAuthorization();
 

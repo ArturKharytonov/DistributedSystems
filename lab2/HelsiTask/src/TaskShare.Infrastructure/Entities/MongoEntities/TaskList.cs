@@ -1,8 +1,8 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson;
 using System.ComponentModel.DataAnnotations;
 
-namespace TaskShare.Core.Entities;
+namespace TaskShare.Infrastructure.Entities.MongoEntities;
 
 public class TaskList
 {

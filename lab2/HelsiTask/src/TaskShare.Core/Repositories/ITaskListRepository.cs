@@ -1,4 +1,4 @@
-﻿using TaskShare.Core.Entities;
+﻿using TaskShare.Core.DomainEntities;
 
 namespace TaskShare.Core.Repositories;
 public interface ITaskListRepository

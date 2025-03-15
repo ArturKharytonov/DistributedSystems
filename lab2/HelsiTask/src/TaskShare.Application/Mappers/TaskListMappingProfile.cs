@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using TaskShare.Application.DTO;
-using TaskShare.Core.Entities;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using TaskShare.Core.DomainEntities;
 
 namespace TaskShare.Application.Mappers;
 

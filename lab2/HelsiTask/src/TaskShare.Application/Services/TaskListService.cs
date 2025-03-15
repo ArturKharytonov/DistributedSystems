@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using TaskShare.Application.DTO;
 using TaskShare.Application.Services.Interfaces;
-using TaskShare.Core.Entities;
+using TaskShare.Core.DomainEntities;
 using TaskShare.Core.Repositories;
 
 namespace TaskShare.Application.Services;

@@ -1,7 +1,8 @@
 ﻿using MongoDB.Driver;
-using TaskShare.Core.Entities;
+using TaskShare.Core.DomainEntities;
 using TaskShare.Core.Repositories;
 using TaskShare.Infrastructure.Data;
+using TaskShare.Infrastructure.Mapping;
 
 namespace TaskShare.Infrastructure.Repositories;
 
@@ -15,31 +16,46 @@ public class TaskListRepository : ITaskListRepository
 
     public async Task<IEnumerable<TaskList>> GetPagedAsync(int page, int pageSize, int userId)
     {
-        return await _dbContext.TaskLists
+        var mongoEntities = await _dbContext.TaskLists
             .Find(taskList => taskList.OwnerId == userId || taskList.SharedWithUserIds.Contains(userId))
             .SortByDescending(taskList => taskList.CreationDate)
             .Skip((page - 1) * pageSize)
-            .Limit(pageSize) 
+            .Limit(pageSize)
             .ToListAsync();
+
+        return mongoEntities.Select(x => x.ToDomain());
     }
     public async Task<IEnumerable<TaskList>> GetAllAsync()
     {
-        return await _dbContext.TaskLists.Find(taskList => true).ToListAsync();
+        var mongoEntities = await _dbContext.TaskLists
+            .Find(taskList => true)
+            .ToListAsync();
+
+        return mongoEntities.Select(x => x.ToDomain());
     }
 
     public async Task<TaskList?> GetByIdAsync(string id)
     {
-        return await _dbContext.TaskLists.Find(taskList => taskList.Id == id).FirstOrDefaultAsync();
+        var mongoEntity = await _dbContext.TaskLists
+            .Find(taskList => taskList.Id == id)
+            .FirstOrDefaultAsync();
+
+        return mongoEntity?.ToDomain();
     }
 
     public async Task CreateAsync(TaskList taskList)
     {
-        await _dbContext.TaskLists.InsertOneAsync(taskList);
+        var mongoEntity = taskList.ToMongo();
+        await _dbContext.TaskLists.InsertOneAsync(mongoEntity);
     }
 
     public async Task UpdateAsync(string id, TaskList updatedTaskList)
     {
-        await _dbContext.TaskLists.ReplaceOneAsync(taskList => taskList.Id == id, updatedTaskList);
+        var mongoEntity = updatedTaskList.ToMongo();
+        await _dbContext.TaskLists.ReplaceOneAsync(
+            taskList => taskList.Id == id,
+            mongoEntity
+        );
     }
 
     public async Task DeleteAsync(string id)

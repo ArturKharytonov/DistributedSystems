@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
-using TaskShare.Core.Entities;
 
 namespace TaskShare.Infrastructure.Data;
 
@@ -18,6 +17,6 @@ public class TaskShareDbContext
         _db = client.GetDatabase(dbName);
     }
 
-    public IMongoCollection<TaskList> TaskLists 
-        => _db.GetCollection<TaskList>(_configuration.GetSection("MongoDb:CollectionName").Value!);
+    public IMongoCollection<Entities.MongoEntities.TaskList> TaskLists 
+        => _db.GetCollection<Entities.MongoEntities.TaskList>(_configuration.GetSection("MongoDb:CollectionName").Value!);
 }
