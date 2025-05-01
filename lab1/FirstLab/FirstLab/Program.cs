@@ -5,7 +5,7 @@ namespace FirstLab;
 
 internal class Program
 {
-    private static async Task Main(string[] args)
+    private static void Main(string[] args)
     {
         int n = RandomUtil.GenerateRandomN(1000, 1000000);
         Console.WriteLine("Generated n: " + n);
@@ -14,7 +14,6 @@ internal class Program
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
 
-        // Часовий аналіз для не паралельного варіанту
         var primes = PrimeNumbersUtil.SieveOfEratosthenes(n);
         int largestGap = PrimeNumbersUtil.FindLargestGap(primes);
 
@@ -24,13 +23,9 @@ internal class Program
 
         stopwatch.Reset();
 
-        // Часовий аналіз для паралельного варіанту
         stopwatch.Start();
-        int parallelLargestGap = await Task.Run(() =>
-        {
-            var parallelPrimes = PrimeNumbersUtil.SieveOfEratosthenes(n);
-            return PrimeNumbersUtil.FindLargestGap(parallelPrimes);
-        });
+        var parallelPrimes = PrimeNumbersUtilParallel.SieveOfEratosthenes(n);
+        var parallelLargestGap = PrimeNumbersUtilParallel.FindLargestGap(parallelPrimes);
 
         stopwatch.Stop();
         Console.WriteLine("Largest gap between primes (Parallel): " + parallelLargestGap);
