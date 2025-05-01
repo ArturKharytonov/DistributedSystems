@@ -1,8 +1,6 @@
-﻿using System.IO;
-using System.Text;
-using AnnouncementApp.Models;
+﻿using AnnouncementApp.Models;
 using AnnouncementApp.Utils;
-using Microsoft.AspNetCore.Http;
+using AnnouncementApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -12,106 +10,86 @@ namespace AnnouncementApp.Controllers
     [ApiController]
     public class AnnouncementController : ControllerBase
     {
-        private static readonly List<Announcement> Announcements = SetList();
+        private static readonly List<Category> Categories = SetList();
 
-        private static List<Announcement> SetList() 
-            =>  JsonUtil.LoadList() != string.Empty 
-                ? JsonConvert.DeserializeObject<List<Announcement>>(JsonUtil.LoadList()) 
-                : new List<Announcement>();
+        private static List<Category> SetList()
+            => JsonUtil.LoadList() != string.Empty
+                ? JsonConvert.DeserializeObject<List<Category>>(JsonUtil.LoadList())
+                : new List<Category>();
 
-        [HttpPost]
-        public IActionResult AddAnnouncement(Announcement announcement)
+
+        [HttpPost("category/{id}")]
+        public IActionResult AddAnnouncement([FromRoute] string id, CreateAnnouncementViewModel announcement)
         {
-            Announcement anotherAnnouncement = new Announcement(announcement.Title, announcement.Description);
+            var category = Categories.FirstOrDefault(c => c.Id == id);
+            if (category == null)
+                return BadRequest();
+            Announcement newAnnouncement = new Announcement(announcement.Title, announcement.Description);
 
-            Announcements.Add(anotherAnnouncement);
-            JsonUtil.SaveList(Announcements);
+            category.Announcements.Add(newAnnouncement);
+            JsonUtil.SaveList(Categories);
             return Ok("Announcement was added!");
         }
 
-        [HttpGet]
-        public IActionResult GetAllAnnouncement()
+        [HttpGet("category/{id}")]
+        public IActionResult GetAllAnnouncements([FromRoute] string id)
         {
-            if (Announcements.Count > 0)
-                return Ok(Announcements);
+            var category = Categories.FirstOrDefault(c => c.Id == id);
+            if (category == null)
+                return BadRequest();
+
+            if (category.Announcements.Count > 0)
+                return Ok(category.Announcements);
+
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult DeleteAnnouncement([FromRoute] string id)
+        [HttpDelete("category/{categoryId}/announcement/{id}")]
+        public IActionResult DeleteAnnouncement([FromRoute] string categoryId, [FromRoute] string id)
         {
-            if (Announcements.Count <= 0) 
+            var category = Categories.FirstOrDefault(c => c.Id == id);
+            if (category == null)
+                return BadRequest();
+
+            if (category.Announcements.Count <= 0) 
                 return NoContent();
 
-            foreach (var value in Announcements)
+            foreach (var value in category.Announcements.Where(value => value.Id == id))
             {
-                if (value.Id == id)
-                {
-                    Announcements.Remove(value);
-                    JsonUtil.SaveList(Announcements);
-                    return Ok("Was deleted");
-                }
+                category.Announcements.Remove(value);
+                JsonUtil.SaveList(Categories);
+                return Ok("Was deleted");
             }
 
             return NotFound();
         }
-        [HttpPut("{id}")]
-        public IActionResult EditAnnouncement([FromRoute] string id, [FromBody] Announcement announcement)
+
+        [HttpPut("category/{categoryId}/announcement/{id}")]
+        public IActionResult EditAnnouncement([FromRoute] string categoryId, [FromRoute] string id, [FromBody] UpdateAnnouncementViewModel updatedAnnouncement)
         {
-            if (Announcements.Count <= 0) 
+            var category = Categories.FirstOrDefault(c => c.Id == id);
+            if (category == null)
+                return BadRequest();
+
+            if (category.Announcements.Count <= 0) 
                 return NoContent();
-            for (int i = 0; i < Announcements.Count; i++)
+
+            for (int i = 0; i < category.Announcements.Count; i++)
             {
-                if (Announcements[i].Id == id)
+                if (category.Announcements[i].Id == id)
                 {
-                    Announcements[i] = announcement;
-                    Announcements[i].Id = id;
-                    JsonUtil.SaveList(Announcements);
+                    Announcement announcementEntity =
+                        new Announcement(updatedAnnouncement.Title, updatedAnnouncement.Description);
+
+                    category.Announcements[i] = announcementEntity;
+                    category.Announcements[i].Id = id;
+                    JsonUtil.SaveList(Categories);
                     return Ok("Was updated");
                 }
             }
-
+            
             return NotFound();
 
-        }
-
-        [HttpGet("similar")]
-        public IActionResult GetSimilarAnnouncement(string title, string description)
-        {
-            List<Announcement> result = new List<Announcement>();
-            if (Announcements.Count <= 0) return NoContent();
-            foreach (var value in Announcements)
-            {
-                if (result.Count == 3)
-                    return Ok(result);
-
-                string[] titleWords = title.Split(" ");
-                string[] descriptionWords = description.Split(" ");
-
-                bool contains = titleWords.Any(t => value.Title.Contains(t));
-
-                if (contains)
-                    result.AddRange(from t in descriptionWords where value.Description.Contains(t) select value);
-            }
-
-            if (result.Count > 0)
-                return Ok(result);
-
-            return NotFound();
-        }
-
-        [HttpGet("info")]
-        public IActionResult GetInfo(string id)
-        {
-            if (Announcements.Count <= 0) 
-                return NoContent();
-
-            foreach (var value in Announcements)
-            {
-                if (value.Id == id)
-                    return Ok(value);
-            }
-            return NotFound();
         }
     }
 }

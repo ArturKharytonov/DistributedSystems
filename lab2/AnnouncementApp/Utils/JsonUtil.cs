@@ -6,9 +6,9 @@ namespace AnnouncementApp.Utils
 {
     public static class JsonUtil
     {
-        public static void SaveList(List<Announcement> announcements)
+        public static void SaveList(List<Category> categories)
         {
-            string json = JsonConvert.SerializeObject(announcements);
+            string json = JsonConvert.SerializeObject(categories);
             using (Stream stream = new FileStream("announcements.json", FileMode.Create))
             {
                 using (StreamWriter writer = new StreamWriter(stream, Encoding.UTF8))

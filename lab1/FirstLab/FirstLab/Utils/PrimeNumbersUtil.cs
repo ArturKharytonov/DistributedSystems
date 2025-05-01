@@ -26,12 +26,12 @@ public static class PrimeNumbersUtil
         for (int i = 0; i < n; i++) isPrime[i] = true;
         isPrime[0] = isPrime[1] = false;
 
-        Parallel.ForEach(smallPrimes, prime =>
+        foreach (var prime in smallPrimes)
         {
             int start = prime * prime;
             for (int j = start; j < n; j += prime)
                 isPrime[j] = false;
-        });
+        }
 
         List<int> result = new List<int>();
         for (int i = 2; i < n; i++)
@@ -40,7 +40,6 @@ public static class PrimeNumbersUtil
 
         return result;
     }
-
     public static int FindLargestGap(List<int> primes)
     {
         int largestGap = 0;

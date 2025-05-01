@@ -7,7 +7,7 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        int n = RandomUtil.GenerateRandomN(1000, 1000000);
+        int n = 1_000_000_000; //RandomUtil.GenerateRandomN(1000, 1000000);//1_000_000_000;
         Console.WriteLine("Generated n: " + n);
 
 

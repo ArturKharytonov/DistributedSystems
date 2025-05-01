@@ -1,25 +1,36 @@
-﻿using System.Text.Json.Serialization;
-using Newtonsoft.Json;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace AnnouncementApp.Models
 {
     public class Announcement
     {
-        [JsonProperty("ID:")]
+        [JsonPropertyName("id")]
         public string Id { get; set; }
-        [JsonProperty("Title:")]
-        public string Title { get; set; }
-        [JsonProperty("Description:")]
-        public string Description { get; set; }
-        [JsonProperty("Adding date:")]
-        public DateTime AddingDate { get; set; }
-       
+
+        [JsonPropertyName("title")]
+        [Required]
+        public string Title { get; set; } = string.Empty;
+
+        [JsonPropertyName("description")]
+        [Required]
+        public string Description { get; set; } = string.Empty;
+
+        [JsonPropertyName("addingDate")]
+        public DateTime AddingDate { get; set; } = DateTime.UtcNow;
+
+        [JsonPropertyName("comments")]
+        public List<Comment> Comments { get; set; }
+
+        public Announcement() { }
+
         public Announcement(string title, string description)
         {
             Id = Guid.NewGuid().ToString();
             Title = title;
             Description = description;
-            AddingDate = DateTime.Now;
+            AddingDate = DateTime.UtcNow;
+            Comments = [];
         }
     }
 }
